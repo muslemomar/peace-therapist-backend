@@ -1,0 +1,8 @@
+node_modules
+server/public
+server/playground.js
+server/playground.html
+server/config/development.json
+server/config/production.json
+.idea/
+server/logs

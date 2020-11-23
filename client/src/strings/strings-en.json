@@ -1,0 +1,9 @@
+{
+  "email_placeholder": "Email",
+  "username_placeholder": "Username",
+  "pass_placeholder": "Password",
+  "login": "Login",
+  "dashboard_title": "Dashboard",
+  "save": "Save",
+  "create": "Create"
+}
