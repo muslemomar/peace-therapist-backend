@@ -4,7 +4,7 @@ sgMail.setApiKey(config.get('SENDGRID_API_KEY'));
 
 exports.sendEmailVerifyCode = async (user, verificationCode) => {
     const fromEmail = 'info@itdropshop.com';
-    const fromName = 'IT Drop Shop';
+    const fromName = 'Peace';
     const lang = 'en';
 
     let msg = {
@@ -23,7 +23,7 @@ exports.sendEmailVerifyCode = async (user, verificationCode) => {
 exports.sendBasicEmail = async (recipientEmail, subject, text, options = {}) => {
 
     const fromEmail = 'info@itdropshop.com';
-    const fromName = 'IT Drop Shop';
+    const fromName = 'Peace';
 
     let msg = {
         to: recipientEmail,

@@ -3,10 +3,11 @@ const {t} = require('localizify');
 const _ = require('lodash');
 const moment = require('moment');
 const winston = require('winston');
-const {sendSms, sendSmsAsync} = require('./../helpers/twilio');
 const {UnprocessableEntity} = require('../utils/error');
 const {sendEmailVerifyCode} = require('../helpers/mailer');
 const {generateVerificationToken} = require('../utils/auth');
+const {upload} = require('./../utils/general');
+const {uploadImage, validateImage} = require('./../utils/general');
 
 exports.registerUser = async (req, res, next) => {
 
@@ -29,6 +30,11 @@ exports.registerUser = async (req, res, next) => {
         if (await User.countDocuments({phoneNumber: req.body.phoneNumber})) {
             return next(new UnprocessableEntity("An account with the same phone number already exists"));
         }
+    }
+
+    if (req.file) {
+        if (!validateImage(req.file)) throw new UnprocessableEntity('Invalid image');
+        req.body.profilePic = (await uploadImage(req.file)).Location;
     }
 
     let user = await User.create(req.body);
@@ -76,7 +82,7 @@ exports.login = async (req, res, next) => {
 
     let user = await User
         .findOne({})
-        .populate('storeId', '_id verifStatus')
+        .populate('storeId', '_id')
         .byCredentials(req.body.email, req.body.phoneNumber, req.body.password);
 
     if(!user) return res.sendError('Incorrect credentials', 422);

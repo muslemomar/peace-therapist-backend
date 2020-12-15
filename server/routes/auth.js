@@ -3,8 +3,9 @@ const routerController = require('./../controllers/auth');
 const validateBody = require('./../middleware/validateBody');
 const {auth, authWithoutVerification} = require('./../middleware/auth');
 const {User, UserSession} = require('./../models/User');
+const {upload} = require('./../utils/general');
 
-router.post('/register', validateBody(User, null, ['password']), routerController.registerUser);
+router.post('/register', upload.single('profilePic'), validateBody(User, null, ['password']), routerController.registerUser);
 
 router.post('/logout', authWithoutVerification, routerController.logout);
 

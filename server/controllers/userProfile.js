@@ -8,7 +8,7 @@ const {validateImage} = require('../utils/validators');
 exports.getUserProfile = async (req, res) => {
 
     await req.user
-        .populate('storeId', '_id verifStatus title logo')
+        .populate('storeId', '_id title logo')
         .execPopulate();
 
     res.sendData(req.user);

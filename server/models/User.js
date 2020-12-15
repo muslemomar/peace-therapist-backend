@@ -8,13 +8,14 @@ const _ = require('lodash');
 const config = require('config');
 const moment = require('moment');
 const mongoose_delete = require('mongoose-delete');
-const {sendSms} = require('./../helpers/twilio');
 const {generateVerificationToken} = require('./../utils/auth');
 const {isValidObjectId} = require('./../utils/validators');
+const {objectToArray} = require('./../utils/general');
 const {sendBasicEmail} = require('./../helpers/mailer');
-const {sendSmsAsync} = require('./../helpers/twilio');
+const {sendSmsAsync, sendSms} = require('./../services/plivo');
 const crypto = require('crypto');
 const {APP_NAME} = require('./../constants/general');
+const {USER_TYPES} = require('./../constants/models');
 const {sendEmailVerifyCode} = require('../helpers/mailer');
 const winston = require('winston');
 let UserSession;
@@ -53,6 +54,11 @@ const schema = new Schema({
     },
     verifyPhone: tokenSchema,
     verifyEmail: tokenSchema,
+    type: {
+        type: String,
+        default: false,
+        required: true
+    },
     profilePic: String,
     password: {
         type: String,
@@ -63,7 +69,8 @@ const schema = new Schema({
         token: String,
         expiresAt: Date
     },
-    fcmToken: String
+    fcmToken: String,
+    tempProtCardId: String
 }, {
     toJSON: {
         virtuals: true
@@ -212,6 +219,13 @@ schema.statics.validateSchema = (object, pickKeys, requiredKeys, schemaType) => 
             .string()
             .min(8)
             .max(300),
+        type: Joi.string().trim().valid(...mongoose.model('User').USER_TYPES_ARRAY).required(),
+        tempProtCardId: Joi.string().length(11).pattern(/^[0-9]+$/)
+            .when('type', {
+                is: Joi.valid(mongoose.model('User').USER_TYPES.REGULAR),
+                then: Joi.forbidden(),
+                otherwise: Joi.required()
+            })
     };
 
     if (schemaType === 'u') {
@@ -270,7 +284,7 @@ schema.methods.forgotPassword = function (host, resetMethod) {
                 });
 
                 function getPasswordResetMessage() {
-                    const resetPasswordLink =  'http://' + host + '/api/users/reset/' + token;
+                    const resetPasswordLink = 'http://' + host + '/api/users/reset/' + token;
                     if (resetMethod === User.ResetPasswordMethod.EMAIL) {
                         return 'You are receiving this because you (or someone else) have requested the reset ' +
                             'of the password for your account. Please click on the following link, or paste this into ' +
@@ -311,10 +325,14 @@ schema.methods.forgotPassword = function (host, resetMethod) {
 };
 
 exports.User = mongoose.model('User', schema);
+
 this.User.ResetPasswordMethod = {
     EMAIL: 1,
     SMS: 2,
 };
+
+this.User.USER_TYPES = USER_TYPES;
+this.User.USER_TYPES_ARRAY = objectToArray(USER_TYPES);
 
 /*********************************************************/
 /** User Session model**/

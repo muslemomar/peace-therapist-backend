@@ -53,7 +53,7 @@ Vue.mixin({
       OTHER_ERR_CODE: 2,
       BASE_URL: baseURL,
       currentUser: null,
-      appName: 'IT Drop Shop',
+      appName: 'Peace',
       consts: consts
     }
   },

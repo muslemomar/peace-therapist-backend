@@ -5,7 +5,7 @@ const moment = require('moment');
 const Joi = require('@hapi/joi');
 const {UnprocessableEntity, Forbidden, NotFound} = require('../utils/error');
 const {generateVerificationToken} = require('../utils/auth');
-const {sendSmsAsync} = require('./../helpers/twilio');
+const {sendSmsAsync} = require('./../services/plivo');
 const {sendEmailVerifyCode} = require('./../helpers/mailer');
 
 exports.sendPhoneVerificationCode = async (req, res, next) => {

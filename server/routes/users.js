@@ -5,7 +5,6 @@ const {requireId} = require('./../middleware/general');
 const {User, UserSession} = require('./../models/User');
 const {auth, authWithoutVerification} = require('./../middleware/auth');
 
-/*
 router.post('/sendPhoneVerifyCode', authWithoutVerification, routerController.sendPhoneVerificationCode);
 
 router.post('/verifyPhone', authWithoutVerification, routerController.verifyPhone);
@@ -19,7 +18,6 @@ router.post('/forgot-password', validateBody(User, null, null, 'forgot-password'
 router.get('/reset/:token', routerController.getPasswordResetPage);
 
 router.post( '/reset/:token', routerController.processPasswordResetToken);
-*/
 
 router.use('/profile', require('./userProfile'));
 
