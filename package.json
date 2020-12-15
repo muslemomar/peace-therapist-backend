@@ -4,7 +4,6 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "prestart": "npm install --prefix client & npm run build --prefix client",
     "start": "node server/app.js",
     "watch": "nodemon server/app.js"
   },
