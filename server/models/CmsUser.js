@@ -113,7 +113,7 @@ exports.Admin = this.CmsUser.discriminator('Admin',
     })
 );
 
-exports.Partner = this.CmsUser.discriminator('Partner',
+exports.Doctor = this.CmsUser.discriminator('Doctor',
     new Schema({
         email: {
             type: String,

@@ -89,8 +89,8 @@ Vue.mixin({
     isAdmin: function () {
       return this.getCurrentUser() && this.getCurrentUser().type === consts.USER_TYPES.Admin;
     },
-    isPartner: function () {
-      return this.getCurrentUser() && this.getCurrentUser().type === consts.USER_TYPES.Partner;
+    isDoctor: function () {
+      return this.getCurrentUser() && this.getCurrentUser().type === consts.USER_TYPES.Doctor;
     },
     setCurrentUser: function (user) {
       this.currentUser = user;

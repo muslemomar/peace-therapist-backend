@@ -1,5 +1,5 @@
 'use strict';
 module.exports = {
   NODE_ENV: '"production"',
-  API_URL: `"http://localhost:4000/api/admin"`
+  API_URL: `"http://localhost:3000/api/admin"`
 };

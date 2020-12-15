@@ -5,9 +5,6 @@ import Login from '@/components/Login'
 import Dashboard from '@/components/Dashboard'
 import NotFound from '@/components/NotFound'
 import Profile from '@/components/Profile';
-import Reservations from '@/components/Reservations';
-import CreateStoreService from '@/components/CreateStoreService';
-import EditReservation from '@/components/EditReservation';
 
 Vue.use(Router);
 
@@ -33,14 +30,6 @@ const router = new Router({
       path: '/admin/dashboard',
       name: 'Dashboard',
       component: Dashboard,
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
-      path: '/admin/reservations/:id',
-      name: 'EditReservation',
-      component: EditReservation,
       meta: {
         requiresAuth: true
       }

@@ -98,11 +98,11 @@
 <style>
 
   .login {
-    background: #258ee8; /* fallback for old browsers */
-    background: -webkit-linear-gradient(right, #258ee8, #00a1e8);
-    background: -moz-linear-gradient(right, #258ee8, #00A1E8);
-    background: -o-linear-gradient(right, #258ee8, #00A1E8);
-    background: linear-gradient(to left, #258ee8, #00A1E8);
+    background: #20c997; /* fallback for old browsers */
+    background: -webkit-linear-gradient(right, #20c997, #00c96e);
+    background: -moz-linear-gradient(right, #20c997, #00c96e);
+    background: -o-linear-gradient(right, #20c997, #00c96e);
+    background: linear-gradient(to left, #20c997, #00c96e);
     font-family: "Roboto", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
