@@ -86,12 +86,6 @@ Vue.mixin({
     getCurrentUser: function () {
       return JSON.parse(localStorage.getItem('user'));
     },
-    isAdmin: function () {
-      return this.getCurrentUser() && this.getCurrentUser().type === consts.USER_TYPES.Admin;
-    },
-    isDoctor: function () {
-      return this.getCurrentUser() && this.getCurrentUser().type === consts.USER_TYPES.Doctor;
-    },
     setCurrentUser: function (user) {
       this.currentUser = user;
     },

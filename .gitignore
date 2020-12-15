@@ -1,5 +1,4 @@
 node_modules
-server/public
 server/playground.js
 server/playground.html
 config/development.json
