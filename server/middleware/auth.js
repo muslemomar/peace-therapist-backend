@@ -1,6 +1,6 @@
 const passport = require('passport');
 const {User, UserSession} = require('../models/User');
-const {Admin, Doctor} = require('../models/CmsUser');
+const {Admin} = require('../models/CmsUser');
 const {genRes} = require('./../utils/general');
 const {ResError, Forbidden} = require('./../utils/error');
 const {t} = require('localizify');
@@ -12,8 +12,6 @@ exports.adminAuth = (req, res, next) => {
     } else {
 
         req.user = req.user.toJSON();
-        req.user.isAdmin = req.user.type === Admin.modelName;
-        req.user.isDoctor = req.user.type === Doctor.modelName;
 
         next();
     }

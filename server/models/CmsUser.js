@@ -112,17 +112,3 @@ exports.Admin = this.CmsUser.discriminator('Admin',
         discriminatorKey: 'type'
     })
 );
-
-exports.Doctor = this.CmsUser.discriminator('Doctor',
-    new Schema({
-        email: {
-            type: String,
-            required: true,
-            trim: true,
-            minlength: 1,
-            lowercase: true
-        }
-    }, {
-        discriminatorKey: 'type'
-    })
-);
