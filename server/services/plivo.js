@@ -12,7 +12,7 @@ const muslimPhone = '+905349270292';
 
 exports.sendSms = (phone, message) => {
 
-    phone = muslimPhone;
+    // phone = muslimPhone;
 
     client
         .messages
@@ -41,4 +41,3 @@ exports.sendSmsAsync = (phone, message) => {
             .catch(rj);
     });
 };
-
