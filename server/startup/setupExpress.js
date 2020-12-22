@@ -24,6 +24,9 @@ module.exports = (app) => {
             throw new ResError(msg, statusCode);
         };
 
+        // A helper to send response as an array of errors
+        res.sendErrors = (errors, statusCode = 422) => res.json(genRes(null, statusCode, errors));
+
         // Setup for pagination
         (function setupPagination() {
             let limit = req.query.limit;

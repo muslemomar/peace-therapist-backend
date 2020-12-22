@@ -5,6 +5,11 @@ import Login from '@/components/Login'
 import Dashboard from '@/components/Dashboard'
 import NotFound from '@/components/NotFound'
 import Profile from '@/components/Profile';
+import Doctors from '@/components/Doctors';
+import NGOs from '@/components/NGOs';
+import AddNGO from '@/components/AddNGO';
+import EditNGO from '@/components/EditNGO';
+import EditDoctor from '@/components/EditDoctor';
 
 Vue.use(Router);
 
@@ -38,6 +43,46 @@ const router = new Router({
       path: '/admin/profile',
       name: 'Profile',
       component: Profile,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/admin/doctors',
+      name: 'Doctors',
+      component: Doctors,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/admin/ngos',
+      name: 'NGOs',
+      component: NGOs,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/admin/ngos/create',
+      name: 'AddNGO',
+      component: AddNGO,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/admin/ngos/:id',
+      name: 'EditNGO',
+      component: EditNGO,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/admin/doctors/:id',
+      name: 'EditDoctor',
+      component: EditDoctor,
       meta: {
         requiresAuth: true
       }
