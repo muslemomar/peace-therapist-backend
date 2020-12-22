@@ -109,6 +109,8 @@
     },
     beforeMount() {
       this.authenticated = !!localStorage.getItem('user');
+
+      if (!this.authenticated) this.logout();
     },
     mounted() {
     },

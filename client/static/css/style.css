@@ -105,7 +105,7 @@
 .switch {
   position: relative;
   display: inline-block;
-  width: 60px;
+  width: 67px;
   height: 34px;
 }
 
@@ -142,11 +142,11 @@
 }
 
 input:checked + .slider {
-  background-color: #258ee8;
+  background-color: #20c997;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #258ee8;
+  box-shadow: 0 0 1px #20c997;
 }
 
 input:checked + .slider:before {

@@ -10380,6 +10380,14 @@ a.text-primary:hover, a.text-primary:focus {
   color: #199d76 !important;
 }
 
+.text-blue {
+  color: #4e73df !important;
+}
+
+a.text-blue:hover, a.text-blue:focus {
+  color: #224abe !important;
+}
+
 .text-secondary {
   color: #6c757d !important;
 }
@@ -10846,6 +10854,14 @@ a:focus {
 
 .border-bottom-primary {
   border-bottom: 0.25rem solid #20c997 !important;
+}
+
+.border-left-blue {
+  border-left: .25rem solid #4e73df !important
+}
+
+.border-bottom-blue {
+  border-bottom: .25rem solid #4e73df !important
 }
 
 .border-left-secondary {
@@ -12387,6 +12403,9 @@ input:checked + .slider:after
 
 .sidebar-logo {
   width: 40px;
+  background-color: white;
+  border-radius: 11%;
+  padding: 2px;
 }
 
 .reset-password-container {

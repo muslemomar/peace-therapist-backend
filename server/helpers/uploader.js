@@ -8,6 +8,8 @@ const {tmpdir} = require('os');
 const sharp = require('sharp');
 const {s3} = require('../setup/aws-config');
 
+const bucketName = config.get('S3_BUCKET_NAME');
+
 exports.upload = multer({
     storage: multer.diskStorage({
         destination: function (req, file, cb) {
@@ -19,8 +21,33 @@ exports.upload = multer({
     })
 });
 
+exports.uploadFile = function (file, plainObject) {
+
+    return new Promise((resolve, reject) => {
+        if (!file) return reject(new Error('Invalid file'));
+
+        fs.readFile(file.path, async (err, data) => {
+            if (err) return reject(err);
+            if (!data) return reject(new Error('Invalid file'));
+
+            let params = {
+                Bucket: bucketName,
+                Key: (Date.now() + _.random(100)) + path.extname(file.originalname),
+                Body: data
+            };
+
+            s3.upload(params, (err, uploadedFile) => {
+                if (err) return reject(err);
+
+                resolve(plainObject ? uploadedFile : uploadedFile.Location);
+            });
+
+        });
+
+    });
+};
+
 exports.uploadImage = function (image, thumbnail, returnSize, skipCompress, tag) {
-    const bucketName = config.get('S3_BUCKET_NAME');
 
     return new Promise((resolve, reject) => {
         if (!image) return reject(new Error('no_image'));

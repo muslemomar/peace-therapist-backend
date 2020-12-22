@@ -161,30 +161,8 @@
         });
 
         tableBody.on('click', 'button.edit-record-link', function () {
-
           const id = app.table.row($(this).parents('tr')).id();
           app.$router.push({name: app.editComponentName, params: {id: id}});
-
-        });
-
-
-        tableBody.on('change', '.is-banned-btn', function () {
-          const userId = $(this).attr('data-id');
-          const isChecked = this.checked;
-
-          app.showLoadingBar();
-
-          app.$http.post(`/users/${userId}/ban`, {
-              banSwitch: isChecked
-            },
-            {withCredentials: true}).then((res) => {
-
-            app.hideLoadingBar();
-
-          }).catch((err) => {
-            app.hideLoadingBar();
-            console.info(err);
-          })
 
         });
 

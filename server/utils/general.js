@@ -8,6 +8,7 @@ const sharp = require('sharp');
 const {customAlphabet} = require('nanoid');
 
 exports.genRes = function (data, statusCode, errors) {
+
     statusCode = statusCode || 200;
     errors = errors || [];
 
@@ -66,11 +67,8 @@ exports.getDbDataByDataTableQuery = function (Model, query, modelColumns, popula
         conds.$or = [];
         modelColumns.forEach((col) => {
 
-            if (!['created_at', 'store'
-                , 'birth_date', 'price', 'discountedPrice', 'expires_at',
-                'updated_at', 'expireDate', 'createdAt', 'likeCount',
-                'discount.product', 'discount.percentage',
-                'commentCount', 'postCount', 'updatedAt', 'coinCount', 'isVip'].includes(col)) {
+            if (!['created_at',  'birth_date',  'updated_at',  'createdAt', 'likeCount',  'ngo', 'birthday', 'updatedAt',
+            'isDoctorVerified'].includes(col)) {
 
                 let searchCond;
                 if (!isNaN(search.value)) {

@@ -35,9 +35,7 @@
     </div>
 
     <!-- Nav Item - Tables -->
-    <li class="nav-item" v-for="(section,index) of sections.filter(i =>
-    Array.isArray(i.type) ? i.type.includes(this.getCurrentUser().type) : i.type === this.getCurrentUser().type
-    )"
+    <li class="nav-item" v-for="(section,index) of sections"
         :key="index" :class="{active: isActive(section.name)}">
       <a class="nav-link collapsed" data-toggle="collapse" :data-target="'#collapseTwo' + index" aria-expanded="true"
          :aria-controls="'collapseTwo' + index" href="#">
@@ -75,68 +73,69 @@
 </template>
 
 <script>
-  const {USER_TYPES} = require('./../consts/generalConsts');
 
-  export default {
-    name: "Sidebar",
-    data() {
-      return {
-        activeItem: 'Dashboard',
-        sections: [
-          {
-            name: 'Users',
-            type: USER_TYPES.Admin,
-            icon: 'fa-users',
-            nestedLabels: [
-              {
-                name: 'Users',
+    export default {
+        name: "Sidebar",
+        data() {
+            return {
+                activeItem: 'Dashboard',
                 sections: [
-                  {
-                    label: 'Users Table',
-                    name: 'Users'
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            name: 'Reservations',
-            type: USER_TYPES.Admin,
-            icon: 'fas fa-calendar-alt',
-            nestedLabels: [
-              {
-                name: 'Reservations',
-                sections: [
-                  {
-                    label: 'Reservations Table',
-                    name: 'Reservations'
-                  }
-                ]
-              }
-            ]
-          },
-        ],
-      };
-    },
-    created() {
-    },
-    methods: {
-      setActive(link) {
-        this.activeItem = link;
-      },
-      isActive(item) {
-        if (!Array.isArray(item)) {
-          item = [item];
+                    {
+                        name: 'Doctors',
+                        icon: 'fa-user-md',
+                        nestedLabels: [
+                            {
+                                name: 'Doctors',
+                                sections: [
+                                    {
+                                        label: 'Doctors Table',
+                                        name: 'Doctors'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        name: 'NGOs',
+                        icon: 'fa-globe',
+                        nestedLabels: [
+                            {
+                                name: 'NGOs',
+                                sections: [
+                                    {
+                                        label: 'NGOs Table',
+                                        name: 'NGOs'
+                                    },
+                                    {
+                                        label: "Create NGO",
+                                        name: 'AddNGO'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                ],
+            };
+        },
+        created() {
+        },
+        methods: {
+            setActive(link) {
+                this.activeItem = link;
+            },
+            isActive(item) {
+                if (!Array.isArray(item)) {
+                    item = [item];
+                }
+
+                return item.some(i => this.activeItem === i);
+            },
+            setDefaultActivePage(page, params) {
+                this.activeItem = page;
+                this.$router.push({name: page, params});
+            }
         }
-
-        return item.some(i => this.activeItem === i);
-      },
-      setDefaultActivePage(page, params) {
-        this.activeItem = page;
-        this.$router.push({name: page, params});
-      }
     }
-  }
 
 
 </script>

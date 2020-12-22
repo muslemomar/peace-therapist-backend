@@ -17,17 +17,20 @@ exports.validateAndParseCoordinates = (coords) => {
     }
 };
 
-exports.validateImage = (image) => {
+const validateFileType = (file, validMimeTypes) => {
 
-    const supportedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (Array.isArray(image)) {
-        return image
-            .every(i => i && supportedMimeTypes.includes(i.mimetype));
+    if (Array.isArray(file)) {
+        return file
+            .every(i => i && validMimeTypes.includes(i.mimetype));
 
     } else {
-        return image && supportedMimeTypes.includes(image.mimetype);
+        return file && validMimeTypes.includes(file.mimetype);
     }
 };
+
+exports.validateImage = (file) => validateFileType(file, ['image/jpeg', 'image/jpg', 'image/png']);
+
+exports.validatePdf = (file) => validateFileType(file, ['application/pdf']);
 
 exports.parseBoolean = (str) => {
     if (str === 'true') return true;

@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const {Schema} = mongoose;
 const {ObjectId} = Schema.Types;
-const Joi = require('@hapi/joi').extend(require('joi-phone-number'));
+const Joi = require('@hapi/joi').extend(require('joi-phone-number')).extend(require('@hapi/joi-date'));
+const PlainJoi = require('@hapi/joi');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 const config = require('config');
@@ -15,7 +16,7 @@ const {sendBasicEmail} = require('./../helpers/mailer');
 const {sendSmsAsync, sendSms} = require('./../services/plivo');
 const crypto = require('crypto');
 const {APP_NAME} = require('./../constants/general');
-const {USER_TYPES} = require('./../constants/models');
+const {PATIENT_TYPES, DOCTOR_TYPES} = require('./../constants/models');
 const {sendEmailVerifyCode} = require('../helpers/mailer');
 const winston = require('winston');
 let UserSession;
@@ -29,10 +30,6 @@ const tokenSchema = {
 };
 
 const schema = new Schema({
-    nickName: {
-        type: String,
-        required: true
-    },
     email: {
         type: String,
         trim: true,
@@ -54,11 +51,6 @@ const schema = new Schema({
     },
     verifyPhone: tokenSchema,
     verifyEmail: tokenSchema,
-    type: {
-        type: String,
-        default: false,
-        required: true
-    },
     profilePic: String,
     password: {
         type: String,
@@ -70,25 +62,139 @@ const schema = new Schema({
         expiresAt: Date
     },
     fcmToken: String,
-    tempProtCardId: String
 }, {
     toJSON: {
         virtuals: true
     },
-    timestamps: true
+    timestamps: true,
+    discriminatorKey: 'userType'
 });
 
 schema.index({phoneNumber: 1});
 schema.index({email: 1});
 
+schema.plugin(mongoose_delete, {overrideMethods: true, deletedAt: true, indexFields: true});
+
 if (!schema.options.toJSON) schema.options.toJSON = {};
 schema.options.toJSON.transform = function (doc, ret, options) {
 
-    const hide = options.hide || 'deleted updatedAt __v verifyPhone verifyEmail id password isPhoneVerified isEmailVerified';
-
+    const hide = options.hide || 'deleted updatedAt __v verifyPhone verifyEmail id password';
     hide.split(' ').forEach(prop => delete ret[prop]);
 
     return ret;
+};
+
+const USER_TYPES = {
+    DOCTOR: 'Doctor',
+    PATIENT: 'Patient'
+};
+const USER_TYPES_ARRAY = objectToArray(USER_TYPES);
+
+const GENDERS = {
+  MALE: 'male',
+  FEMALE: 'female'
+};
+const GENDERS_ARRAY = objectToArray(GENDERS);
+
+schema.statics.validateSchema = (object, pickKeys, requiredKeys, schemaType) => {
+
+    let customRules = {}, rules;
+
+    const patientRules = {
+        nickName: Joi.string().trim().min(1).required(),
+        email: Joi.string().trim().min(1).email(),
+        phoneNumber: Joi
+            .string()
+            .phoneNumber({strict: true}),
+        password: Joi
+            .string()
+            .min(8)
+            .max(300),
+        type: Joi.string().trim().valid(...mongoose.model('User').PATIENT_TYPES_ARRAY).required(),
+        tempProtCardId: Joi.string().length(11).pattern(/^[0-9]+$/)
+            .when('type', {
+                is: Joi.valid(mongoose.model('User').PATIENT_TYPES.REGULAR),
+                then: Joi.forbidden(),
+                otherwise: Joi.required()
+            }),
+        userType: Joi.string().valid(...USER_TYPES_ARRAY).required()
+    };
+    const patientUpdateRules = {
+        nickName: Joi.string().trim().min(1),
+        userType: Joi.string().valid(...USER_TYPES_ARRAY).required(),
+    };
+
+    const doctorRules = {
+        fullName: Joi.string().trim().min(1).required(),
+        email: Joi.string().trim().min(1).email(),
+        birthday: Joi.date().format('YYYY-MM-DD').less('now').required(),
+        gender: Joi.string().valid(...GENDERS_ARRAY).required(),
+        phoneNumber: Joi
+            .string()
+            .phoneNumber({strict: true}),
+        password: Joi
+            .string()
+            .min(8)
+            .max(300),
+        type: Joi.string().trim().valid(...mongoose.model('User').DOCTOR_TYPES_ARRAY).required(),
+        ngo: PlainJoi.objectId().when('type', {
+            is: Joi.valid(mongoose.model('Doctor').TYPES.NGO),
+            then: Joi.required(),
+            otherwise: Joi.forbidden(),
+        }),
+        userType: Joi.string().valid(...USER_TYPES_ARRAY).required(),
+    };
+    const doctorUpdateRules = {
+        fullName: Joi.string().trim().min(1),
+        isDoctorVerified: Joi.boolean(),
+        userType: Joi.string().valid(...USER_TYPES_ARRAY).required(),
+    };
+
+    if (!USER_TYPES_ARRAY.includes(object.userType)) {
+        rules = {
+          userType: Joi.string().valid(...USER_TYPES_ARRAY).required()
+        };
+
+    } else if (object.userType === USER_TYPES.PATIENT) {
+        rules = patientRules;
+
+        if (schemaType === 'u') {
+            rules = patientUpdateRules
+        }
+
+    } else {
+        rules = doctorRules;
+
+        if (schemaType === 'u') {
+            rules = doctorUpdateRules
+        }
+    }
+    
+    if (Array.isArray(pickKeys) && pickKeys.length > 0) {
+        rules = _.pick(Object.assign({}, rules, customRules), pickKeys)
+    }
+
+    if (Array.isArray(requiredKeys)) {
+        requiredKeys.forEach((elem) => {
+            if (rules[elem]) {
+                rules[elem] = rules[elem].required();
+            }
+        });
+    }
+
+    if (schemaType === 'forgot-password') {
+
+        rules = {
+            email: Joi.string().trim().min(1).email(),
+            phoneNumber: Joi
+                .string()
+                .phoneNumber({strict: true}),
+        };
+    }
+
+    return Joi
+        .object(rules)
+        .validate(object, {abortEarly: false});
 };
 
 schema.statics.getUsersFcmTokens = async function (conds = {}) {
@@ -200,67 +306,6 @@ schema.query.byCredentials = async function (email, phoneNumber, password) {
     else return null;
 };
 
-schema.statics.validateSchema = (object, pickKeys, requiredKeys, schemaType) => {
-
-    let customRules = {
-        code: Joi.number().min(100000).max(999999).required(),
-        isVerified: Joi.boolean()
-    };
-
-    let rules;
-
-    rules = {
-        nickName: Joi.string().trim().min(1).required(),
-        email: Joi.string().trim().min(1).email(),
-        phoneNumber: Joi
-            .string()
-            .phoneNumber({strict: true}),
-        password: Joi
-            .string()
-            .min(8)
-            .max(300),
-        type: Joi.string().trim().valid(...mongoose.model('User').USER_TYPES_ARRAY).required(),
-        tempProtCardId: Joi.string().length(11).pattern(/^[0-9]+$/)
-            .when('type', {
-                is: Joi.valid(mongoose.model('User').USER_TYPES.REGULAR),
-                then: Joi.forbidden(),
-                otherwise: Joi.required()
-            })
-    };
-
-    if (schemaType === 'u') {
-        rules = {
-            nickName: Joi.string().trim().min(1)
-        }
-    }
-
-    if (Array.isArray(pickKeys) && pickKeys.length > 0) {
-        rules = _.pick(Object.assign({}, rules, customRules), pickKeys)
-    }
-
-    if (Array.isArray(requiredKeys)) {
-        requiredKeys.forEach((elem) => {
-            if (rules[elem]) {
-                rules[elem] = rules[elem].required();
-            }
-        });
-    }
-
-    if (schemaType === 'forgot-password') {
-
-        rules = {
-            email: Joi.string().trim().min(1).email(),
-            phoneNumber: Joi
-                .string()
-                .phoneNumber({strict: true}),
-        };
-    }
-
-    return Joi
-        .object(rules)
-        .validate(object, {abortEarly: false});
-};
-
 schema.methods.forgotPassword = function (host, resetMethod) {
     return new Promise((rs, rj) => {
 
@@ -326,13 +371,77 @@ schema.methods.forgotPassword = function (host, resetMethod) {
 
 exports.User = mongoose.model('User', schema);
 
+/* Static variables */
 this.User.ResetPasswordMethod = {
     EMAIL: 1,
     SMS: 2,
 };
 
 this.User.USER_TYPES = USER_TYPES;
-this.User.USER_TYPES_ARRAY = objectToArray(USER_TYPES);
+this.User.USER_TYPES_ARRAY = USER_TYPES_ARRAY;
+
+this.User.GENDERS = GENDERS;
+this.User.GENDERS_ARRAY = GENDERS_ARRAY;
+
+this.User.PATIENT_TYPES = PATIENT_TYPES;
+this.User.PATIENT_TYPES_ARRAY = objectToArray(PATIENT_TYPES);
+
+this.User.DOCTOR_TYPES = DOCTOR_TYPES;
+this.User.DOCTOR_TYPES_ARRAY = objectToArray(DOCTOR_TYPES);
+
+/********************/
+/* Patient */
+/********************/
+
+exports.Patient = this.User.discriminator('Patient',
+    new Schema({
+        nickName: {
+            type: String,
+            required: true
+        },
+        type: {
+            type: String,
+            default: false,
+            required: true
+        },
+        tempProtCardId: String
+    }, {
+        discriminatorKey: 'userType'
+    })
+);
+
+this.Patient.TYPES = PATIENT_TYPES;
+this.Patient.TYPES_ARRAY = objectToArray(PATIENT_TYPES);
+
+/********************/
+/* Doctor */
+/********************/
+exports.Doctor = this.User.discriminator('Doctor',
+    new Schema({
+        fullName: String,
+        birthday: Date,
+        gender: String,
+        cv: String,
+        speciality: String,
+        diploma: String,
+        type: String,
+        ngo: {
+            type: ObjectId,
+            ref: 'NGO',
+            index: true
+        },
+        isDoctorVerified: {
+            type: Boolean,
+            default: false,
+            index: true
+        }
+    }, {
+        discriminatorKey: 'userType'
+    })
+);
+
+this.Doctor.TYPES = DOCTOR_TYPES;
+this.Doctor.TYPES_ARRAY = objectToArray(DOCTOR_TYPES);
 
 /*********************************************************/
 /** User Session model**/

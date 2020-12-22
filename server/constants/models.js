@@ -4,8 +4,12 @@ module.exports = {
         name: 1,
         image: 1
     },
-    USER_TYPES: {
+    PATIENT_TYPES: {
         REGULAR: 'regular',
         REFUGEE: 'refugee'
+    },
+    DOCTOR_TYPES: {
+        REGULAR: 'regular',
+        NGO: 'ngo'
     }
 };
