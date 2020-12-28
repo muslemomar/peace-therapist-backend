@@ -2,7 +2,6 @@ const router = require('express').Router();
 const routerController = require('./../../controllers/admin/ngos');
 const validateBody = require('./../../middleware/validateBody');
 const {requireId} = require('../../middleware/general');
-const {User} = require('./../../models/User');
 const {NGO} = require('./../../models/NGO');
 
 router.get('/', routerController.getNGOs);

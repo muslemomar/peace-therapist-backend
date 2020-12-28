@@ -1,4 +1,5 @@
-const {User, Patient, Doctor} = require('../../models/User');
+const {Patient} = require('../../models/Patient');
+const {Doctor} = require('../../models/Doctor');
 const {NGO} = require('../../models/NGO');
 
 exports.getDashboard = async (req, res) => {

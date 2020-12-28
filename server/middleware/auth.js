@@ -1,8 +1,10 @@
 const passport = require('passport');
-const {User, UserSession} = require('../models/User');
+const {UserSession} = require('../models/UserSession');
+const {Doctor} = require('../models/Doctor');
+const {Patient} = require('../models/Patient');
 const {Admin} = require('../models/CmsUser');
 const {genRes} = require('./../utils/general');
-const {ResError, Forbidden} = require('./../utils/error');
+const {ResError, Forbidden, UnprocessableEntity} = require('./../utils/error');
 const {t} = require('localizify');
 
 exports.adminAuth = (req, res, next) => {
@@ -10,15 +12,17 @@ exports.adminAuth = (req, res, next) => {
     if (!req.isAuthenticated()) {
         res.status(401).send()
     } else {
-
-        req.user = req.user.toJSON();
-
         next();
     }
 };
 
 const auth = (req, res, next, passWithoutVerification) => {
     const token = req.headers.authorization;
+
+    req.userType = req.headers.usertype;
+    if (![Doctor.modelName, Patient.modelName].includes(req.userType)) {
+        return next(new UnprocessableEntity(`"userType" header field is not valid (${Doctor.modelName}, ${Patient.modelName})`));
+    }
 
     passport.authenticate('jwt', {session: false}, function (err, user, info) {
         if (err) return next(err);
@@ -28,7 +32,8 @@ const auth = (req, res, next, passWithoutVerification) => {
         }
 
         UserSession.findOne({
-            user: user._id,
+            userId: user._id,
+            userType: req.userType,
             token: token
         }).then((session) => {
 
