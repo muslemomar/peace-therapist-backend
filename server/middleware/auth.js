@@ -16,12 +16,13 @@ exports.adminAuth = (req, res, next) => {
     }
 };
 
-const auth = (req, res, next, passWithoutVerification) => {
+const auth = (req, res, next, passWithoutVerification, validUserType) => {
     const token = req.headers.authorization;
 
     req.userType = req.headers.usertype;
-    if (![Doctor.modelName, Patient.modelName].includes(req.userType)) {
-        return next(new UnprocessableEntity(`"userType" header field is not valid (${Doctor.modelName}, ${Patient.modelName})`));
+    const validUserTypes = validUserType ? [validUserType] : [Doctor.modelName, Patient.modelName];
+    if (!validUserTypes.includes(req.userType)) {
+        return next(new UnprocessableEntity(`"userType" header field is not valid (${validUserTypes.join(',')})`));
     }
 
     passport.authenticate('jwt', {session: false}, function (err, user, info) {
@@ -56,6 +57,20 @@ const auth = (req, res, next, passWithoutVerification) => {
 
                 req.user = user;
                 req.token = token;
+
+                // assign doctor types
+                req.isDoctor = req.userType === Doctor.modelName;
+                if (req.isDoctor) {
+                    req.isNGODoctor = Doctor.TYPES.NGO === req.user.type;
+                    req.isRegularDoctor = Doctor.TYPES.REGULAR === req.user.type;
+                }
+
+                //assign patient types
+                req.isPatient = req.userType === Patient.modelName;
+                if (req.isPatient) {
+                    req.isRefugeePatient = Patient.TYPES.REFUGEE === req.user.type;
+                    req.isRegularPatient = Patient.TYPES.REGULAR === req.user.type;
+                }
                 return next();
             });
 
@@ -69,6 +84,14 @@ const auth = (req, res, next, passWithoutVerification) => {
 
 exports.auth = (req, res, next) => {
     return auth(req, res, next);
+};
+
+exports.onlyDoctorsAuth = (req, res, next) => {
+    return auth(req, res, next, null, Doctor.modelName);
+};
+
+exports.onlyPatientsAuth = (req, res, next) => {
+    return auth(req, res, next, null, Patient.modelName);
 };
 
 exports.authWithoutVerification = (req, res, next) => {
