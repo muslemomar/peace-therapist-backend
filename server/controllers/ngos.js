@@ -10,6 +10,10 @@ const {validateImage} = require('../utils/validators');
 
 exports.getNgos = async (req, res) => {
 
-    const docs = await NGO.find({});
+    const docs = await NGO
+        .find({})
+        .skip(req.offset)
+        .limit(req.limit);
+
     res.sendData(docs);
 };
