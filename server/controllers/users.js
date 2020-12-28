@@ -1,4 +1,4 @@
-const {UserSession, User} = require('../models/User');
+const {UserSession, User} = require('../models/UserSession');
 const {t} = require('localizify');
 const _ = require('lodash');
 const moment = require('moment');

@@ -1,4 +1,4 @@
-const {User, Doctor, UserSession} = require('../../models/User');
+const {Doctor} = require('../../models/Doctor');
 const {getDbDataByDataTableQuery} = require('./../../utils/general');
 const {UnprocessableEntity, NotFound, Forbidden} = require('./../../utils/error');
 

@@ -23,7 +23,7 @@ schema.plugin(mongoose_delete, {overrideMethods: true, deletedAt: true, indexFie
 if (!schema.options.toJSON) schema.options.toJSON = {};
 schema.options.toJSON.transform = function (doc, ret, options) {
 
-    const hide = options.hide || 'id deleted updatedAt createdAt';
+    const hide = options.hide || 'id deleted updatedAt createdAt __v';
 
     hide.split(' ').forEach(prop => delete ret[prop]);
 

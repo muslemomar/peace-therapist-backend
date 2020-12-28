@@ -8,34 +8,18 @@ module.exports = (app) => {
     const mongoose = require('mongoose');
 
     const {CmsUser} = require('../models/CmsUser');
-    const {User} = require('../models/User');
+    const {Patient} = require('../models/Patient');
+    const {Doctor} = require('../models/Doctor');
 
     app.use(passport.initialize());
     app.use(passport.session());
 
     passport.serializeUser(function (user, done) {
-
-        const model = user.constructor.modelName;
-
-        if (user.constructor.modelName === User.modelName)
-            return done(null, {user: user, model: model});
-
-        done(null, {userId: user._id, model: model});
+        done(null, user);
     });
 
-    passport.deserializeUser(function (obj, done) {
-
-        if (obj.model === User.modelName) return done(null, obj.user);
-
-        mongoose.model(obj.model)
-            .findById(obj.userId)
-            .exec((err, user) => {
-
-                if (err) return done(err, null);
-
-                done(null, user);
-            });
-
+    passport.deserializeUser(function (user, done) {
+        done(null, user);
     });
 
     /*********************/
@@ -45,10 +29,11 @@ module.exports = (app) => {
     const opts = {};
     opts.jwtFromRequest = ExtractJwt.fromHeader("authorization");
     opts.secretOrKey = config.get('JWT_SECRET');
+    opts.passReqToCallback = true;
 
-    passport.use(new JwtStrategy(opts, function (jwt_payload, done) {
+    passport.use(new JwtStrategy(opts, function (req, jwt_payload, done) {
 
-        User.findById(jwt_payload._id)
+        mongoose.model(req.userType).findById(jwt_payload._id)
             .then((user) => {
                 if (user) {
                     return done(null, user);

@@ -130,7 +130,6 @@
 
                 this.updateRecordById(this.doc._id, {
                     ...this.doc,
-                    userType: 'Doctor'
                 });
             },
             updateRecordById(id, body) {
@@ -157,7 +156,7 @@
                 app.$http
                     .patch(
                         `${app.componentApiUrlPath}/${id}`,
-                        app._.pick(body, ['isDoctorVerified', 'userType']),
+                        app._.pick(body, ['isDoctorVerified']),
                         {withCredentials: true})
                     .then(onResponse())
                     .catch(onResponse);

@@ -2,7 +2,6 @@ const router = require('express').Router();
 const routerController = require('./../controllers/users');
 const validateBody = require('./../middleware/validateBody');
 const {requireId} = require('./../middleware/general');
-const {User, UserSession} = require('./../models/User');
 const {auth, authWithoutVerification} = require('./../middleware/auth');
 
 router.post('/sendPhoneVerifyCode', authWithoutVerification, routerController.sendPhoneVerificationCode);
@@ -13,7 +12,7 @@ router.post('/sendEmailVerifyCode', authWithoutVerification, routerController.se
 
 router.post('/verifyEmail', authWithoutVerification, routerController.verifyEmail);
 
-router.post('/forgot-password', validateBody(User, null, null, 'forgot-password'), routerController.forgotPassword);
+// router.post('/forgot-password', validateBody(User, null, null, 'forgot-password'), routerController.forgotPassword);
 
 router.get('/reset/:token', routerController.getPasswordResetPage);
 
