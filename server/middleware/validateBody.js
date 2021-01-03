@@ -1,9 +1,10 @@
 const createError = require('http-errors');
+const winston = require('winston');
 
 module.exports = (Model, pickKeys, customRequiredKeys, schemaType) => {
     return (req, res, next) => {
 
-        console.log('req.body',req.body);
+        winston.info(`${req.method} ${req.originalUrl}, body: ${JSON.stringify(req.body,undefined,2)}`);
         const {error: validationErrors} = Model.validateSchema(req.body, pickKeys, customRequiredKeys, schemaType);
         if (validationErrors == null) return next();
 

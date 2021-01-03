@@ -6,7 +6,14 @@ const {UnprocessableEntity, Forbidden, NotFound} = require('../../utils/error');
 
 exports.getDoctors = async (req, res) => {
 
-    const query = {}, sort = {};
+    // regular patient => regular doctors
+    // refugee patient => regular/ngo doctors
+
+    const query = {
+        isEmailVerified: true,
+        isPhoneVerified: true,
+        isDoctorVerified: true
+    }, sort = {};
 
     if (req.isRegularPatient) {
         query.type = Doctor.TYPES.REGULAR;
@@ -16,6 +23,9 @@ exports.getDoctors = async (req, res) => {
         sort.type = 1;
     }
 
+    // Gender: get the doctors whose Doctor.gender === Patient.gender
+
+
     const docs = await Doctor
         .find(query)
         .select('type fullName gender profilePic speciality')
@@ -24,4 +34,12 @@ exports.getDoctors = async (req, res) => {
         .limit(req.limit);
 
     res.sendData(docs);
+};
+
+exports.getAppointment = async (req, res) => {
+
+//    the patient gets an appointment at time:date (09:00 Mon)
+//    the doctor receives the appointment,
+//    if it's the first appointment, it will have a fixed length of 30 mins
+//
 };

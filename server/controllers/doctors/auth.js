@@ -16,22 +16,13 @@ const {validateImage, validatePdf} = require('../../utils/validators');
 
 exports.registerUser = async (req, res, next) => {
 
-    if (!req.body.email && !req.body.phoneNumber) {
-        return next(new UnprocessableEntity("One of 'email' or 'phoneNumber' is required"));
-    }
-
-    if (req.body.email && req.body.phoneNumber) {
-        return next(new UnprocessableEntity("Please enter only one of 'email' or 'phoneNumber'"));
-    }
-
     if (req.body.email) {
-        delete req.body.phoneNumber;
         if (await Doctor.countDocuments({email: req.body.email})) {
             return next(new UnprocessableEntity("An account with the same email already exists"));
         }
+    }
 
-    } else {
-        delete req.body.email;
+    if (req.body.phoneNumber) {
         if (await Doctor.countDocuments({phoneNumber: req.body.phoneNumber})) {
             return next(new UnprocessableEntity("An account with the same phone number already exists"));
         }

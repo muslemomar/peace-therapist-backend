@@ -38,9 +38,6 @@ const schema = new Schema({
         trim: true,
         minlength: 1
     },
-    info: {
-      phoneNumber: String,
-    },
     isPhoneVerified: {
         type: Boolean,
         default: false
@@ -156,13 +153,14 @@ schema.statics.validateSchema = (object, pickKeys, requiredKeys, schemaType) => 
 
     const defaultRules = {
         fullName: Joi.string().trim().min(1).required(),
-        email: Joi.string().trim().min(1).email(),
+        email: Joi.string().trim().min(1).email().required(),
         birthday: Joi.date().format('YYYY-MM-DD').less('now').required(),
         gender: Joi.string().valid(...Doctor.GENDERS_ARRAY).required(),
         fcmToken: Joi.string(),
         phoneNumber: Joi
             .string()
-            .phoneNumber({strict: true}),
+            .phoneNumber({strict: true})
+            .required(),
         password: Joi
             .string()
             .min(8)
@@ -174,10 +172,6 @@ schema.statics.validateSchema = (object, pickKeys, requiredKeys, schemaType) => 
             then: Joi.required(),
             otherwise: Joi.forbidden(),
         }),
-        // just info, can't be used for authentication.
-        info: Joi.object({
-            phoneNumber: Joi.string().required()
-        }).required(),
     };
 
     const updateRules = {
