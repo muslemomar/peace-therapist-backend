@@ -43,12 +43,23 @@ const auth = (req, res, next, passWithoutVerification, validUserType) => {
             }
 
             if (!passWithoutVerification) {
-                if (!user.isEmailVerified && !user.isPhoneVerified) {
-                    if (user.email) {
-                        return next(new Forbidden("Please verify your email to use the app"))
+                const isAccountVerified = user.isEmailVerified && user.isPhoneVerified;
+                if (!isAccountVerified) {
+
+                    const isDoctor = req.userType === Doctor.modelName;
+                    if (isDoctor) {
+                        if (!user.isEmailVerified && !user.isPhoneVerified)
+                            return next(new Forbidden("Please verify your email and phone number to use the app"));
+                        if (!user.isEmailVerified)
+                            return next(new Forbidden("Please verify your email to use the app"));
+                        if (!user.isPhoneVerified)
+                            return next(new Forbidden("Please verify your phone to use the app"));
+
                     } else {
-                        return next(new Forbidden("Please verify your phone to use the app"));
+                        if (!user.isEmailVerified) return next(new Forbidden("Please verify your email to use the app"));
+                        if (!user.isPhoneVerified) return next(new Forbidden("Please verify your phone to use the app"));
                     }
+
                 }
             }
 

@@ -7,4 +7,6 @@ const {upload} = require('../../utils/general');
 
 router.get('/', auth, routerController.getDoctors);
 
+// router.post('/:id', auth, routerController.getAppointment);
+
 module.exports = router;
