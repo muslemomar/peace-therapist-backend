@@ -1,8 +1,8 @@
 const router = require('express').Router();
 
-const {onlyPatientsAuth} = require('../../middleware/auth');
+const {onlyPatientsAuth: auth} = require('../../middleware/auth');
 
 router.use('/auth', require('./auth'));
-router.use('/doctors', onlyPatientsAuth, require('./doctors'));
+router.use('/doctors', auth, require('./doctors'));
 
 module.exports = router;
