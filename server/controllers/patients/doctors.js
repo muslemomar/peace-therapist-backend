@@ -33,7 +33,7 @@ exports.getDoctors = async (req, res) => {
 
     const docs = await Doctor
         .find(getDoctorQueryConds(req))
-        .select('type fullName gender profilePic speciality')
+        .select('type fullName gender profilePic speciality QBUserId')
         .sort(sort)
         .skip(req.offset)
         .limit(req.limit);
