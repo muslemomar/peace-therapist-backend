@@ -49,6 +49,10 @@ const schema = new Schema({
     verifyPhone: tokenSchema,
     verifyEmail: tokenSchema,
     profilePic: String,
+    QBUserId: {
+        type: String,
+        unique: true,
+    },
     password: {
         type: String,
         select: false,
@@ -152,6 +156,7 @@ schema.statics.validateSchema = (object, pickKeys, requiredKeys, schemaType) => 
     let Doctor = this.Doctor;
 
     const defaultRules = {
+        QBUserId: Joi.string().trim().required(),
         fullName: Joi.string().trim().min(1).required(),
         email: Joi.string().trim().min(1).email().required(),
         birthday: Joi.date().format('YYYY-MM-DD').less('now').required(),
