@@ -149,7 +149,17 @@ schema.post('save', async function (doc, next) {
 
 /* Statics */
 
-schema.statics.validateSchema = (object, pickKeys, requiredKeys, schemaType) => {
+function validateJoiByRules(rules, object, orConds) {
+    let joiObject = Joi.object(rules);
+
+    if (orConds) {
+        joiObject = joiObject.or(...orConds);
+    }
+
+    return joiObject.validate(object, {abortEarly: false});
+}
+
+schema.statics.validateSchema = (object, pickKeys, requiredKeys, schemaType, loginType) => {
 
     let customRules = {}, rules;
 
@@ -192,6 +202,19 @@ schema.statics.validateSchema = (object, pickKeys, requiredKeys, schemaType) => 
     };
 
     switch (schemaType) {
+        case Doctor.VALIDATION_SCHEMA_TYPES.LOGIN:
+            rules = {
+                email: Joi.string().trim().min(1).email(),
+                password: Joi
+                    .string()
+                    .min(8)
+                    .max(300)
+                    .required(),
+                phoneNumber: Joi
+                    .string()
+                    .phoneNumber({strict: true})
+            };
+            break;
         case 'forgot-password':
             rules = forgotPassRules;
             break;
@@ -214,9 +237,7 @@ schema.statics.validateSchema = (object, pickKeys, requiredKeys, schemaType) => 
         });
     }
 
-    return Joi
-        .object(rules)
-        .validate(object, {abortEarly: false});
+    return validateJoiByRules(rules, object, ['email', 'phoneNumber']);
 };
 
 schema.statics.getUsersFcmTokens = model.getUsersFcmTokens;
@@ -248,4 +269,9 @@ this.Doctor.GENDERS = {
     MALE: 'male',
     FEMALE: 'female'
 };
+
+this.Doctor.VALIDATION_SCHEMA_TYPES = {
+    LOGIN: 1
+};
+
 this.Doctor.GENDERS_ARRAY = objectToArray(this.Doctor.GENDERS);

@@ -13,6 +13,6 @@ router.post('/register', upload.fields([
 
 router.post('/logout', authWithoutVerification, routerController.logout);
 
-router.post('/login', validateBody(Doctor, ['email', 'password', 'phoneNumber'], ['password']), routerController.login);
+router.post('/login', validateBody(Doctor, null, null, Doctor.VALIDATION_SCHEMA_TYPES.LOGIN), routerController.login);
 
 module.exports = router;
