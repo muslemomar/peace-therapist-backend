@@ -92,3 +92,25 @@ exports.createAppointment = async (req, res) => {
 
     res.sendData(appointment);
 };
+
+exports.listDoctorAppointments = async (req, res) => {
+
+    const doctor = await Doctor
+        .findOne({
+            _id: req.idParam,
+            ...getDoctorQueryConds(req)
+        })
+        .select('id')
+        .lean();
+
+    if (!doctor) throw new NotFound('No such a doctor');
+
+    const appointments = await Appointment
+        .find({
+            doctor: doctor._id
+        })
+        .select('startDate endDate');
+
+    res.sendData(appointments);
+};
+

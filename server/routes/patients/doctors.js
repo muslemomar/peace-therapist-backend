@@ -9,4 +9,6 @@ router.get('/', routerController.getDoctors);
 
 router.post('/:id/first-appointment', requireId, validateBody(Appointment, ['startDate']), routerController.createAppointment);
 
+router.get('/:id/appointments', requireId, routerController.listDoctorAppointments);
+
 module.exports = router;
