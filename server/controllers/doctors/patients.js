@@ -18,6 +18,13 @@ const authHelper = require('../../helpers/auth');
 const {validateImage, validatePdf} = require('../../utils/validators');
 const {validateAppointmentDates} = require("../../helpers/dates");
 
+const getPatientQueryConds = () => ({
+    $or: [
+        {isEmailVerified: true},
+        {isPhoneVerified: true},
+    ]
+});
+
 exports.createProgram = async (req, res) => {
 
     const patientId = req.idParam;
@@ -98,4 +105,25 @@ exports.createProgram = async (req, res) => {
     });
 
     res.sendData();
+};
+
+exports.listPatientAppointments = async (req, res) => {
+
+    const patient = await Patient
+        .findOne({
+            _id: req.idParam,
+            ...getPatientQueryConds(req)
+        })
+        .select('id')
+        .lean();
+
+    if (!patient) throw new NotFound('No such a patient');
+
+    const appointments = await Appointment
+        .find({
+            patient: patient._id
+        })
+        .select('startDate endDate');
+
+    res.sendData(appointments);
 };

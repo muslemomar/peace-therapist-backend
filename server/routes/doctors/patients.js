@@ -7,4 +7,6 @@ const {Program} = require('../../models/Program');
 
 router.post('/:id/programs', requireId, validateBody(Program), routerController.createProgram);
 
+router.get('/:id/appointments', requireId, routerController.listPatientAppointments);
+
 module.exports = router;
