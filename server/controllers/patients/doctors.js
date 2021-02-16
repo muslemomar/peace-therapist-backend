@@ -72,7 +72,7 @@ exports.createAppointment = async (req, res) => {
             throw new UnprocessableEntity('There is already a first appointment with the provided doctor');
     })();
 
-    validateAppointmentDates(req.body.startDate);
+    validateAppointmentDates(req.body.startDate, null, req);
 
     const doctorId = req.idParam;
     const patientId = req.user._id;

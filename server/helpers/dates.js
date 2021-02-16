@@ -7,9 +7,12 @@ const {
     FIRST_APPOINTMENT_DURATION_IN_MINS
 } = require('../constants/appointments');
 
-exports.validateAppointmentDates = (startDate, endDate) => {
-    const momentStartDate = moment(startDate);
-    const momentEndDate = endDate ? moment(endDate) : moment(startDate).add(FIRST_APPOINTMENT_DURATION_IN_MINS, 'minutes');
+exports.validateAppointmentDates = (startDate, endDate, req) => {
+    const momentStartDate = moment(startDate, 'DD/MM/YYYY HH:mm');
+    const momentEndDate = endDate ? moment(endDate, 'DD/MM/YYYY HH:mm') : momentStartDate.clone().add(FIRST_APPOINTMENT_DURATION_IN_MINS, 'minutes');
+    if (!endDate) {
+        req.body.endDate = momentEndDate.format('DD/MM/YYYY HH:mm');
+    }
     const isEndDateAfterStartDate = momentEndDate.isAfter(momentStartDate);
     const appointmentDurationInMins = momentEndDate.diff(momentStartDate, 'minutes');
 
