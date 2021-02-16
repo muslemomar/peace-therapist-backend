@@ -11,8 +11,14 @@ const {Forbidden, UnprocessableEntity} = require('./../utils/error');
 const mongoose_delete = require('mongoose-delete');
 
 const schema = Schema({
-    startDate: Date,
-    endDate: Date,
+    startDate: {
+        type: Date,
+        set: v => typeof v === 'string' ? moment(v, 'DD/MM/YYYY HH:mm').toDate() : v
+    },
+    endDate: {
+        type: Date,
+        set: v => typeof v === 'string' ? moment(v, 'DD/MM/YYYY HH:mm').toDate() : v
+    },
     doctor: {
         type: ObjectId,
         ref: 'Doctor'
@@ -27,8 +33,8 @@ const schema = Schema({
     }
 }, {
     toJSON: {
-        virtuals: true
-    },
+        virtuals: true,
+    },  
     timestamps: true
 });
 
@@ -43,7 +49,6 @@ schema.options.toJSON.transform = function (doc, ret, options) {
 
     return ret;
 };
-
 
 schema.statics.validateSchema = (object, pickKeys) => {
 
@@ -62,6 +67,14 @@ schema.statics.validateSchema = (object, pickKeys) => {
 
 schema.statics.isDateOccupied = async function (doctorId, patientId, startDate, endDate) {
     const Appointment = this;
+
+    if (typeof startDate === 'string') {
+        startDate = moment(startDate, 'DD/MM/YYYY HH:mm').toDate();
+    }
+    if (typeof endDate === 'string') {
+        endDate = moment(endDate, 'DD/MM/YYYY HH:mm').toDate();
+    }
+
     return !!(await Appointment
             .findOne({
                 ...doctorId && {doctor: doctorId},
@@ -90,6 +103,7 @@ schema.statics.isDateOccupied = async function (doctorId, patientId, startDate, 
 
 schema.statics.validateDateOccupancyOfEither = async function (doctorId, patientId, startDate, endDate, showDateInError) {
     const Appointment = this;
+
     const formattedDate = `${moment(startDate).format('LLLL')} - ${moment(endDate).format('LLLL').slice(-8)}`;
 
     if (await Appointment.isDateOccupied(doctorId, null, startDate, endDate)) {
