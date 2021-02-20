@@ -34,7 +34,7 @@ const schema = Schema({
 }, {
     toJSON: {
         virtuals: true,
-    },  
+    },
     timestamps: true
 });
 
