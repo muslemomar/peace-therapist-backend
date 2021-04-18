@@ -2,7 +2,7 @@ const sgMail = require('@sendgrid/mail');
 const config = require('config');
 sgMail.setApiKey(config.get('SENDGRID_API_KEY'));
 
-const fromEmail = 'peacejiyan@gmail.com';
+const fromEmail = 'info@peacesoftware.co';
 const fromName = 'Peace';
 
 exports.sendEmailVerifyCode = async (user, verificationCode) => {
